@@ -126,7 +126,7 @@ function drawMap(newInter){
     map = new mapboxgl.Map({
 		container: 'map',
 		style:"mapbox://styles/jiaz-usafacts/cl5vfpk4l001y14o4ab68qde5",// ,//newest
-		zoom: 9,
+		zoom: 6,
 		preserveDrawingBuffer: true,
 		minZoom:7,
 		maxZoom:15,// ,
@@ -153,8 +153,8 @@ function drawMap(newInter){
 		  map.on('click', (e) => {
 			 center = [e.lngLat.lng,e.lngLat.lat]
 			  map.flyTo({
-				  center: center//,
-				  //zoom:8
+				  center: center,
+				  zoom:8
 			  });
 			  
 			  if(clicked==true){
