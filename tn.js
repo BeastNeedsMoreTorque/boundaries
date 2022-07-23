@@ -24,30 +24,26 @@
 //Congressional District 40 (116th Congress), California!!Total!!Estimate	334,291
 
 var map;
-var congressData
+var housingCount
+var populationCount
+
 Promise.all([
-			d3.csv("FLIPPED_numberedCongressionalDistrict.csv")])
+			d3.json("censusData_by_mtfcc/H1_001N.json"),
+			d3.json("censusData_by_mtfcc/P1_001N.json")])
  .then(function(data){
 	// console.log(data)
-	 congressData=formatCongressData(data[0])
+	// congressData=formatCongressData(data[0])
 	 
+	 console.log(data)
+	 housingCount = data[0]
+	 populationCount = data[1]
 	 
-	   var map = drawMap(data[0])
+	   var map = drawMap()
 })
 //click layer
 //show a layer
 //
-function formatCongressData(data){
-	var formatted = {}
-	for(var i in data){
-		if(data[i]["Label (Grouping)"]!=undefined){
-			var geoid = data[i]["Label (Grouping)"]
-			
-			formatted[geoid]=data[i]
-		}
-	}
-	return formatted
-}
+
 
 var marker = null;
 
@@ -57,6 +53,20 @@ var marker = new mapboxgl.Marker({
 			color:"#fa6614"
 		})
 		
+		var layerNames = {
+G4000: "State or Equivalent Feature Tabulation Area",
+G5220: "State Legislative District (Lower Chamber) Tabulation Area",
+G5210: "State Legislative District (Upper Chamber)",
+G5200: "Congressional District",
+G5410: "Secondary School District",
+G5400: "Elementary School District",
+G4110: "Incorporated Place",
+G5420: "Unified School District",
+G4210: "Census Designated Place",
+G4040: "County Subdivision",
+G4020: "County or Equivalent Feature"
+			
+		}
 function setCenter(latLng){
 //	 console.log(congressData)
 	console.log("call set center")
@@ -71,21 +81,22 @@ function setCenter(latLng){
 	var searchLayers = []
 	for(var l in layers){
 		var layerName = layers[l].id
-		if(layerName.indexOf("copy")>-1){
+		if(layerName.indexOf("copy 1")==-1){
 			searchLayers.push(layerName)
 		}
 	}
-	//console.log(searchLayers)
+	console.log(searchLayers)
 	
 	var features = map.queryRenderedFeatures(pointOnScreen, {
 	  	layers: searchLayers
 	  })
   		//console.log(features)
 	  
+	  var uniqueIds = []
 	  displayString = ""
-		 
+		 console.log(features)
 	  for(var f in features){
-		  if (features[f].layer.id!= "G4000"){
+		  if (features[f].layer.id.indexOf("G4000")==-1){
 		  	var layer = features[f].layer.id.replace(" copy"," copy 1")
 				  map.setLayoutProperty(
 				  layer,
@@ -94,12 +105,29 @@ function setCenter(latLng){
 				  );
 
 			  var geoid = features[f].properties["geo_id"]
+			
+				  if(uniqueIds.indexOf(geoid)==-1){
+				  	uniqueIds.push(geoid)
+				  
+				 
 			  map.setFilter(layer,["==","geo_id",geoid])
-			  
-			  console.log(features[f].properties)
-				
-			  displayString+=features[f].layer.id+": "+geoid+features[f].properties.name+"<br>"
-		  }
+				  var mtfccId = features[f].properties["id"]
+			  //console.log(features[f].properties)
+				var layer = features[f].layer.id.replace(" copy","")
+				//  console.log(layer, housingCount)
+				  
+				  var houses = Math.round(housingCount[layer][mtfccId])
+				  var population = Math.round(populationCount[layer][mtfccId])
+				  
+				  //console.log(houses,population)
+				  
+				  if(Object.keys(layerNames).indexOf(layer)>-1){
+				  	layer += " "+layerNames[layer]
+				  }
+				  var featureName = features[f].properties.name
+				  if(featureName==undefined){featureName = ""}
+			  displayString+="mtfcc "+layer+": "+features[f].properties["id"]+featureName+"<br>"+"Population: "+population+"<br> Housing Units: "+houses+"<br><br>"
+		  }}
 	  }
 	  
 		  
@@ -117,7 +145,7 @@ function setCenter(latLng){
 	//   }
 }
 
-function drawMap(newInter){
+function drawMap(){
 	
 	
 //	console.log(dict)
@@ -147,7 +175,7 @@ function drawMap(newInter){
 	 map.addControl(geocoder)
 				 
       map.on("load",function(){
-	  console.log(map.getStyle().layers)
+	  //console.log(map.getStyle().layers)
 		  
 		  clicked=true
 		  map.on('click', (e) => {
