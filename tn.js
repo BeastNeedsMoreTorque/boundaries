@@ -53,6 +53,23 @@ var marker = new mapboxgl.Marker({
 			color:"#fa6614"
 		})
 		
+		
+		var layerColors = {
+G4000: "#e62790",
+G5220: "#00347B",
+G5210: "#249edc",
+G5200: "#6929c4",
+G5410: "#20659d",
+G5400: "#cf77ad",
+G4110: "#851c6a",
+G5420: "#a56eff",
+G4210: "#006600",
+G4040: "#CC6A19",
+G4020: "#E5BD3F",
+X0072:'red', 
+X0001:"magenta", X0014:"green", X0005:"gold", X0029:"gold"
+		}
+		
 		var layerNames = {
 G4000: "State or Equivalent Feature Tabulation Area",
 G5220: "State Legislative District (Lower Chamber) Tabulation Area",
@@ -108,7 +125,10 @@ function setCenter(latLng){
 			
 				  if(uniqueIds.indexOf(geoid)==-1){
 				  	uniqueIds.push(geoid)
+				  console.log(layer.replace(" copy 1",""))
 				  
+	 				 map.setPaintProperty(layer, 'fill-color', layerColors[layer.replace(" copy 1","")]);
+					 map.setPaintProperty(layer, 'fill-opacity', .1);
 				 
 			  map.setFilter(layer,["==","geo_id",geoid])
 				  var mtfccId = features[f].properties["id"]
@@ -126,7 +146,7 @@ function setCenter(latLng){
 				  }
 				  var featureName = features[f].properties.name
 				  if(featureName==undefined){featureName = ""}
-			  displayString+="mtfcc "+layer+": "+features[f].properties["id"]+featureName+"<br>"+"Population: "+population+"<br> Housing Units: "+houses+"<br><br>"
+			  displayString+="<span style=\"color:"+layerColors[layer.replace(" copy 1","")]+"\">mtfcc "+layer+": "+features[f].properties["id"]+featureName+"<br>"+"Population: "+population+"<br> Housing Units: "+houses+"</span><br><br>"
 		  }}
 	  }
 	  
