@@ -26,10 +26,11 @@
 var map;
 var housingCount
 var populationCount
-
+var positionsData
 Promise.all([
 			d3.json("censusData_by_mtfcc/H1_001N.json"),
-			d3.json("censusData_by_mtfcc/P1_001N.json")])
+			d3.json("censusData_by_mtfcc/P1_001N.json"),
+d3.csv("races2b.csv")])
  .then(function(data){
 	// console.log(data)
 	// congressData=formatCongressData(data[0])
@@ -37,13 +38,35 @@ Promise.all([
 	 console.log(data)
 	 housingCount = data[0]
 	 populationCount = data[1]
+	 positionsData = formatPositions(data[2])
 	 
 	   var map = drawMap()
 })
 //click layer
 //show a layer
 //
-
+function formatPositions(data){
+	var formatted = {}
+	for(var i in data){
+		var geoid = data[i]["geoId"]
+		var mtfcc = data[i]["mtfcc"]
+		if(mtfcc!=undefined){
+			if(geoid.slice(0,2)=="47"){
+				//console.log(geoid, geoid.slice(0,2),mtfcc, data[i].name)
+				console.log("TN")
+			}
+			
+		}
+		
+		if(Object.keys(formatted).indexOf(mtfcc)==-1){
+			formatted[mtfcc]={}
+			formatted[mtfcc][geoid]=data[i]
+		}else{
+			formatted[mtfcc][geoid]=data[i]
+		}
+	}
+	return formatted
+}
 
 var marker = null;
 
@@ -123,6 +146,7 @@ function setCenter(latLng){
 
 			  var geoid = features[f].properties["geo_id"]
 			
+			console.log(features[f].properties)
 				  if(uniqueIds.indexOf(geoid)==-1){
 				  	uniqueIds.push(geoid)
 				  console.log(layer.replace(" copy 1",""))
@@ -141,12 +165,26 @@ function setCenter(latLng){
 				  
 				  //console.log(houses,population)
 				  
+				  var positions = positionsData[layer.replace(" copy 1","")][geoid]
+				  console.log(positions,geoid)
+					 if(positions!=undefined){
+					 	//console.log(positions)
+						displayString+=layer.replace(" copy 1","")+"-"+geoid+" "+"<br>"
+						 +positions.level+"<br>"
+						 +positions.name+"<br>"
+						 +positions.officeHolderName+"<br>"
+						 +positions.salary+"<br>"
+						 +"years in office: "+positions.totalYearsInOffice+"<br>"
+					 }else{
+					 	displayString+=layer.replace(" copy 1","")+"-"+geoid+" there is a boundary but no position here<br><br>"
+					 }
+					 
 				  if(Object.keys(layerNames).indexOf(layer)>-1){
 				  	layer += " "+layerNames[layer]
 				  }
 				  var featureName = features[f].properties.name
 				  if(featureName==undefined){featureName = ""}
-			  displayString+="<span style=\"color:"+layerColors[layer.replace(" copy 1","")]+"\">mtfcc "+layer+": "+features[f].properties["id"]+featureName+"<br>"+"Population: "+population+"<br> Housing Units: "+houses+"</span><br><br>"
+			 // displayString+="<span style=\"color:"+layerColors[layer.replace(" copy 1","")]+"\">mtfcc "+layer+": "+features[f].properties["id"]+featureName+"<br>"+"Population: "+population+"<br> Housing Units: "+houses+"</span><br><br>"
 		  }}
 	  }
 	  
