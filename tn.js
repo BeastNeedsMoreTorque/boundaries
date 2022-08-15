@@ -169,14 +169,14 @@ function setCenter(latLng){
 				  console.log(positions,geoid)
 					 if(positions!=undefined){
 					 	//console.log(positions)
-						displayString+=layer.replace(" copy 1","")+"-"+geoid+" "+"<br>"
+						displayString+="<strong>"+layer.replace(" copy 1","")+"-"+geoid+" "+"</strong><br>"
 						 +positions.level+"<br>"
 						 +positions.name+"<br>"
 						 +positions.officeHolderName+"<br>"
 						 +positions.salary+"<br>"
-						 +"years in office: "+positions.totalYearsInOffice+"<br>"
+						 +"years in office: "+positions.totalYearsInOffice+"<br><br>"
 					 }else{
-					 	displayString+=layer.replace(" copy 1","")+"-"+geoid+" there is a boundary but no position here<br><br>"
+					 	displayString+="<strong>"+layer.replace(" copy 1","")+"-"+geoid+"</strong> there is a boundary but no position here<br><br>"
 					 }
 					 
 				  if(Object.keys(layerNames).indexOf(layer)>-1){
